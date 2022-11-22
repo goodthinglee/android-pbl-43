@@ -43,5 +43,6 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
+        bottom_navigation.selectedItemId = R.id.action_home
     }
 }
