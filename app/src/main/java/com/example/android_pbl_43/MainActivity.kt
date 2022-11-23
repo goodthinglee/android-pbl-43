@@ -1,17 +1,20 @@
 package com.example.android_pbl_43
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.android_pbl_43.navigation.AlarmFragment
-import com.example.android_pbl_43.navigation.DetailViewFragment
-import com.example.android_pbl_43.navigation.GridFragment
-import com.example.android_pbl_43.navigation.UserFragment
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.example.android_pbl_43.navigation.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 1)
 
         var bottom_navigation: BottomNavigationView= findViewById(R.id.bottom_navigation)
         bottom_navigation.setOnNavigationItemSelectedListener { it ->
@@ -27,7 +30,9 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.action_add_photo -> {
-
+                    if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        startActivity(Intent(this, AddPhotoActivity::class.java))
+                    }
                     true
                 }
                 R.id.action_favorite_alarm -> {
