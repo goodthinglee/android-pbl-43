@@ -68,6 +68,7 @@ class UserFragment : Fragment() {
             mainactivity.toolbar_username?.text = userId
             mainactivity.toolbar_btn_back?.setOnClickListener {
                 mainactivity.bottom_navigation.selectedItemId = R.id.action_home
+
             }
 
             fragmentView?.account_btn_follow_signout?.setOnClickListener {

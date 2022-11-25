@@ -90,6 +90,7 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         bottom_navigation.setOnNavigationItemSelectedListener { it ->
             when(it.itemId) {
                 R.id.action_home -> {
+                    setToolbarDefault()
                     var detailViewFragment = DetailViewFragment()
                     supportFragmentManager.beginTransaction().replace(R.id.main_content, detailViewFragment).commit()
                     true
