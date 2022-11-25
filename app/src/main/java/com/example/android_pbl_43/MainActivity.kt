@@ -16,7 +16,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 1)
 
+
         var bottom_navigation: BottomNavigationView= findViewById(R.id.bottom_navigation)
+        bottom_navigation.selectedItemId = R.id.action_home
         bottom_navigation.setOnNavigationItemSelectedListener { it ->
             when(it.itemId) {
                 R.id.action_home -> {
