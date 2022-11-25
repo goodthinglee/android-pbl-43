@@ -12,6 +12,7 @@
     <string name="gallery">Gallery</string>
     <string name="favorite">Favorite</string>
     <string name="account">Account</string>
+    <string name="follow">Follow</string>
 
     <!-- Add Photo -->
     <string name="upload_image">Photo Upload</string>
@@ -21,5 +22,7 @@
 
     <!-- User -->
     <string name="user_name">사용자 이름</string>
+    <string name="signout">signout</string>
+    <string name="follow_cancel">Unfollow</string>
 
 </resources>

@@ -12,7 +12,4 @@ data class ContentDTO(var explain : String? = null, //컨텐츠의 설명관리
                        var userId : String? = null,
                        var comment : String? = null, //코멘트를 관리해주는
                        var timestamp: String? = null) //몇시 몇분에 코멘트를 달았는지
-
-
 }
-

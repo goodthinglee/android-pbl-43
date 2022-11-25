@@ -22,7 +22,10 @@ class LoginActivity : AppCompatActivity() {
             doLoginandSingUp(userEmail, password)
         }
     }
-
+    override fun onStart() {
+        super.onStart()
+        moveMainPage(Firebase.auth?.currentUser)
+    }
     private fun doLoginandSingUp(userEmail: String, password: String) {
         Firebase.auth.createUserWithEmailAndPassword(userEmail, password) // 인증 시도
             .addOnCompleteListener(this) {
@@ -52,7 +55,10 @@ class LoginActivity : AppCompatActivity() {
             startActivity(
                 Intent(this, MainActivity::class.java)
             )
+            finish()
         }
     }
+
+
 
 }
