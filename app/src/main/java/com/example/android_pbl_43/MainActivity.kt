@@ -7,6 +7,7 @@ import com.example.android_pbl_43.navigation.DetailViewFragment
 import com.example.android_pbl_43.navigation.GridFragment
 import com.example.android_pbl_43.navigation.UserFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +38,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.action_account -> {
                     var userFragment = UserFragment()
+                    var bundle = Bundle()
+                    var uid = FirebaseAuth.getInstance().currentUser?.uid
+                    bundle.putString("destinationUid",uid)
+                    userFragment.arguments = bundle
                     supportFragmentManager.beginTransaction().replace(R.id.main_content, userFragment).commit()
                     true
                 }

@@ -12,5 +12,6 @@
     <string name="gallery">Gallery</string>
     <string name="favorite">Favorite</string>
     <string name="account">Account</string>
+    <string name="follow">Follow</string>
 
 </resources>
