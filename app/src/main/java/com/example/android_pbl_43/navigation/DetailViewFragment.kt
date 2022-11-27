@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -15,6 +16,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_detail.view.*
 import kotlinx.android.synthetic.main.item_detail.view.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 class DetailViewFragment : Fragment() {
     var firestore : FirebaseFirestore? = null
@@ -42,6 +45,7 @@ class DetailViewFragment : Fragment() {
             firestore?.collection("images")?.orderBy("timestamp")?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
                 contentDTOs.clear()
                 contentUidList.clear()
+
                 //Sometimes, This code return null of querySnapshot when it signout
                 if(querySnapshot == null) return@addSnapshotListener
 
@@ -50,6 +54,8 @@ class DetailViewFragment : Fragment() {
                     contentDTOs.add(item!!)
                     contentUidList.add(snapshot.id)
                 }
+                contentDTOs.reverse()
+                contentUidList.reverse()
                 notifyDataSetChanged()
             }
         }
@@ -91,6 +97,7 @@ class DetailViewFragment : Fragment() {
                 fragment.arguments = bundle
                 activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.main_content,fragment)?.commit()
             }
+
         }
     }
 

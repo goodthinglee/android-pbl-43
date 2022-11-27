@@ -87,6 +87,7 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
     }
 
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -95,7 +96,7 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
             var uid = FirebaseAuth.getInstance().currentUser?.uid
             var storageRef = FirebaseStorage.getInstance().reference.child("userProfileImages").child(uid!!)
             storageRef.putFile(imageUri!!).continueWithTask{ task: Task<UploadTask.TaskSnapshot> ->
-            return@continueWithTask storageRef.downloadUrl
+                return@continueWithTask storageRef.downloadUrl
             }.addOnCompleteListener{ uri ->
                 var map = HashMap<String,Any>()
                 map["image"] = uri.toString()

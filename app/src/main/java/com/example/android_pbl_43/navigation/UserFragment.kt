@@ -1,5 +1,6 @@
 package com.example.android_pbl_43.navigation
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.PorterDuff
 import android.os.Bundle
@@ -32,6 +33,7 @@ class UserFragment : Fragment() {
     var userId : String? = null
     var currentUid : String? = null
     lateinit var storeage : FirebaseStorage
+    var followDTO = FollowDTO()
     companion object {
        var PICK_PROFILE_FROM_ALBUM = 10
     }
@@ -48,6 +50,8 @@ class UserFragment : Fragment() {
         storeage = FirebaseStorage.getInstance()
         currentUid = auth?.currentUser?.uid
         userId = arguments?.getString("userId")
+        fragmentView?.account_recyclerview?.adapter = UserFragmentRecyclerviewAdapter()
+        fragmentView?.account_recyclerview?.layoutManager = GridLayoutManager(requireActivity(),3)
         var mainactivity = (activity as MainActivity)
         if(uid == currentUid) {
             mainactivity.toolbar_title_image?.visibility = View.VISIBLE
@@ -55,32 +59,27 @@ class UserFragment : Fragment() {
             mainactivity.toolbar_btn_back?.visibility = View.INVISIBLE
             fragmentView?.account_btn_follow_signout?.text = getString(R.string.signout)
             fragmentView?.account_btn_follow_signout?.setOnClickListener{
+                auth?.signOut()
                 activity?.finish()
                 startActivity(Intent(activity,LoginActivity::class.java))
-                auth?.signOut()
             }
-
+            fragmentView?.account_iv_profile?.setOnClickListener {
+                var photoPickerIntent = Intent(Intent.ACTION_PICK)
+                photoPickerIntent.type = "image/*"
+                activity?.startActivityForResult(photoPickerIntent, PICK_PROFILE_FROM_ALBUM)
+            }
         } else {
             mainactivity.toolbar_title_image?.visibility = View.INVISIBLE
             mainactivity.toolbar_username?.visibility = View.VISIBLE
             mainactivity.toolbar_btn_back?.visibility = View.VISIBLE
-            fragmentView?.account_btn_follow_signout?.text = getString(R.string.follow)
             mainactivity.toolbar_username?.text = userId
             mainactivity.toolbar_btn_back?.setOnClickListener {
                 mainactivity.bottom_navigation.selectedItemId = R.id.action_home
-
             }
-
+            fragmentView?.account_btn_follow_signout?.text = getString(R.string.follow)
             fragmentView?.account_btn_follow_signout?.setOnClickListener {
                 requestFollow()
             }
-        }
-        fragmentView?.account_recyclerview?.adapter = UserFragmentRecyclerviewAdapter()
-        fragmentView?.account_recyclerview?.layoutManager = GridLayoutManager(requireActivity(),3)
-        fragmentView?.account_iv_profile?.setOnClickListener {
-            var photoPickerIntent = Intent(Intent.ACTION_PICK)
-            photoPickerIntent.type = "image/*"
-            activity?.startActivityForResult(photoPickerIntent,PICK_PROFILE_FROM_ALBUM)
         }
         getProfileImage()
         getFollow()
@@ -89,21 +88,28 @@ class UserFragment : Fragment() {
     fun getFollow(){
         firestore.collection("users").document(uid!!).addSnapshotListener { value, error ->
             if(value == null) return@addSnapshotListener
-            var followDTO = value.toObject(FollowDTO::class.java)
-            if(followDTO?.followingCount != null) {
-                fragmentView?.account_following_textview?.text = followDTO.followingCount.toString()
-            }
-            if(followDTO?.followerCount != null){
-                fragmentView?.account_follower_textview?.text = followDTO.followerCount.toString()
-                if (followDTO.followers.containsKey(currentUid!!) == true){
-                    fragmentView?.account_btn_follow_signout?.text = getString(R.string.follow_cancel)
-                    fragmentView?.account_btn_follow_signout?.background?.setColorFilter(ContextCompat.getColor(requireActivity(),R.color.colorLightGray),PorterDuff.Mode.MULTIPLY)
-                } else {
-                    if(uid != currentUid) {
+            followDTO = value.toObject(FollowDTO::class.java)!!
+            if(followDTO?.followerCount != null) {
+                fragmentView?.account_follower_textview?.text = followDTO?.followerCount.toString()
+                if(currentUid == uid){
+                    return@addSnapshotListener
+                }
+                checkIfFragmentAttached {
+                    if (followDTO.followers.containsKey(currentUid)) {
+                        fragmentView?.account_btn_follow_signout?.text =
+                            getString(R.string.follow_cancel)
+                        fragmentView?.account_btn_follow_signout?.background?.setColorFilter(
+                            ContextCompat.getColor(requireActivity(), R.color.colorLightGray),
+                            PorterDuff.Mode.MULTIPLY
+                        )
+                    } else {
                         fragmentView?.account_btn_follow_signout?.text = getString(R.string.follow)
                         fragmentView?.account_btn_follow_signout?.background?.colorFilter = null
                     }
                 }
+            }
+            if(followDTO?.followingCount != null){
+                fragmentView?.account_following_textview?.text = followDTO.followingCount.toString()
             }
         }
     }
@@ -115,11 +121,9 @@ class UserFragment : Fragment() {
                 followDTO = FollowDTO()
                 followDTO.followingCount = 1
                 followDTO.followings[uid!!] = true
-
                 transaction.set(tsDocFollowing,followDTO)
                 return@runTransaction
-            }
-            if(followDTO.followings.containsKey(uid)){
+            } else if(followDTO.followings.containsKey(uid)){
                 followDTO.followingCount = followDTO.followingCount - 1
                 followDTO.followings.remove(uid)
             } else {
@@ -138,11 +142,9 @@ class UserFragment : Fragment() {
                 followDTO!!.followers[currentUid!!] = true
                 transaction.set(tsDocFollower,followDTO!!)
                 return@runTransaction
-            }
-
-            if(followDTO!!.followers.containsKey(currentUid)){
+            } else if(followDTO!!.followers.containsKey(currentUid)){
                 followDTO!!.followerCount = followDTO!!.followerCount - 1
-                followDTO!!.followers.remove(currentUid!!)
+                followDTO!!.followers.remove(currentUid)
             } else {
                 followDTO!!.followerCount = followDTO!!.followerCount + 1
                 followDTO!!.followers[currentUid!!] = true
@@ -159,6 +161,11 @@ class UserFragment : Fragment() {
                 Glide.with(requireActivity()).load(url).apply(RequestOptions().circleCrop())
                     .into(fragmentView?.account_iv_profile!!)
             }
+        }
+    }
+    fun checkIfFragmentAttached(operation: Context.() -> Unit) {
+        if (isAdded && context != null) {
+            operation(requireContext())
         }
     }
     inner class UserFragmentRecyclerviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
