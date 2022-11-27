@@ -5,16 +5,16 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.MenuItem
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.android_pbl_43.navigation.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.UploadTask
-import kotlinx.android.synthetic.main.activity_main.*
 
 @Suppress("DEPRECATION")
 class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemSelectedListener {
@@ -68,8 +68,13 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         return false
     }
     fun setToolbarDefault(){
+        var toolbar_username = findViewById<TextView>(R.id.toolbar_username)
         toolbar_username.visibility = View.GONE
+
+        var toolbar_btn_back = findViewById<ImageView>(R.id.toolbar_btn_back)
         toolbar_btn_back.visibility = View.GONE
+
+        var toolbar_title_image = findViewById<ImageView>(R.id.toolbar_title_image)
         toolbar_title_image.visibility = View.VISIBLE
     }
 
