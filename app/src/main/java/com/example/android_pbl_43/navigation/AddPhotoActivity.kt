@@ -40,7 +40,6 @@ class AddPhotoActivity : AppCompatActivity() {
         startActivityForResult(photoPickerIntent, PICK_IMAGE_FROM_ALBUM)
 
         // 이미지 업로드 이벤트
-        var addphoto_btn_upload = findViewById<Button>(R.id.addphoto_btn_upload)
         addphoto_btn_upload.setOnClickListener {
             contentUpload()
         }
@@ -51,7 +50,6 @@ class AddPhotoActivity : AppCompatActivity() {
         if (requestCode == PICK_IMAGE_FROM_ALBUM) {
             if (resultCode == Activity.RESULT_OK) {
                 photoUri = data?.data
-                var addphoto_image = findViewById<ImageView>(R.id.addphoto_image)
                 addphoto_image.setImageURI(photoUri)
             } else {
                 finish()
@@ -63,36 +61,23 @@ class AddPhotoActivity : AppCompatActivity() {
         var timestamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
         var imageFileName = "IMAGE_" + timestamp + "_.png"
 
-        var storageRef = storage?.reference?.child("images")?.child(imageFileName)
+        var storageRef = storage.reference.child("images").child(imageFileName)
 
         // 이미지 업로드
-        storageRef?.putFile(photoUri!!)?.continueWithTask { task: Task<UploadTask.TaskSnapshot> ->
+        storageRef.putFile(photoUri!!).continueWithTask { task: Task<UploadTask.TaskSnapshot> ->
             return@continueWithTask storageRef.downloadUrl
-        }?.addOnSuccessListener { uri ->
+        }.addOnSuccessListener { uri ->
             var contentDTO = ContentDTO()
-
-            //Insert download of image //﻿다운로드 URL를 컨텐츠 DTO에 넣어주고
             contentDTO.imageUrl = uri.toString()
-
-            //Insert uid of user //﻿유저 아이디를 uid에 넣고
             contentDTO.uid = auth?.currentUser?.uid
-
-            //Insert userId //﻿유저 아이디에 이메일을 넣어준다.
             contentDTO.userId = auth?.currentUser?.email
-
-            //Insert explain of content //사용자가 입력한 설명글을 넣어준다.
             contentDTO.explain = addphoto_edit_explain.text.toString()
-
-            //Insert timestamp //작성한 시간을 넣어준다.
             contentDTO.timestamp = System.currentTimeMillis().toString()
 
-            //컨텐츠 DTO를 images 안에 넣어줄것입니다.
             firestore?.collection("images")?.document()?.set(contentDTO)
 
-            //정상적으로 종료되었다는 프래그값을 넘겨주기 위함.
             setResult(Activity.RESULT_OK)
 
-            //finish //종료하고 창을 닫아줍니다.
             finish()
         }
     }
