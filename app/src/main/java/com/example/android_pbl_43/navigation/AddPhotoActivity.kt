@@ -72,7 +72,7 @@ class AddPhotoActivity : AppCompatActivity() {
             contentDTO.uid = auth?.currentUser?.uid
             contentDTO.userId = auth?.currentUser?.email
             contentDTO.explain = addphoto_edit_explain.text.toString()
-            contentDTO.timestamp = System.currentTimeMillis().toString()
+            contentDTO.timestamp = System.currentTimeMillis()
 
             firestore?.collection("images")?.document()?.set(contentDTO)
 

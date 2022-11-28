@@ -40,20 +40,19 @@ class UserFragment : Fragment() {
     var userId : String? = null
     var currentUid : String? = null
     lateinit var storeage : FirebaseStorage
-    var followDTO = FollowDTO()
 
     companion object {
-       var PICK_PROFILE_FROM_ALBUM = 10
+        var PICK_PROFILE_FROM_ALBUM = 10
     }
 
     var myPhotoResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
-        result ->
+            result ->
         var imageUrl = result.data!!.data
         var storageRef = storeage.reference.child("userProfileImages").child(currentUid!!)
         storageRef.putFile(imageUrl!!).continueWithTask {
             return@continueWithTask storageRef.downloadUrl
         }.addOnCompleteListener {
-            imageUri ->
+                imageUri ->
             var map = HashMap<String,Any>()
             map["image"] = imageUri.result.toString()
             firestore.collection("profileImages").document(currentUid!!).set(map)
@@ -108,31 +107,29 @@ class UserFragment : Fragment() {
         return fragmentView
     }
     fun getFollow(){
-        firestore.collection("users").document(uid!!).addSnapshotListener { value, error ->
+        firestore?.collection("users")?.document(uid!!)?.addSnapshotListener { value, error ->
             if(value == null) return@addSnapshotListener
-            followDTO = value.toObject(FollowDTO::class.java)!!
+            var followDTO = value.toObject(FollowDTO::class.java)
+            if(followDTO?.followingCount != null){
+                fragmentView?.account_following_textview?.text = followDTO?.followingCount?.toString()
+            }
             if(followDTO?.followerCount != null) {
-                fragmentView?.account_follower_textview?.text = followDTO?.followerCount.toString()
-                if(currentUid == uid){
-                    return@addSnapshotListener
-                }
-                checkIfFragmentAttached {
-                    if (followDTO.followers.containsKey(currentUid)) {
-                        fragmentView?.account_btn_follow_signout?.text =
-                            getString(R.string.follow_cancel)
-                        fragmentView?.account_btn_follow_signout?.background?.setColorFilter(
-                            ContextCompat.getColor(requireActivity(), R.color.colorLightGray),
-                            PorterDuff.Mode.MULTIPLY
-                        )
-                    } else {
+                fragmentView?.account_follower_textview?.text = followDTO?.followerCount?.toString()
+                if (followDTO?.followers?.containsKey(currentUid!!) == true) {
+                    fragmentView?.account_btn_follow_signout?.text =
+                        getString(R.string.follow_cancel)
+                    fragmentView?.account_btn_follow_signout?.background?.setColorFilter(
+                        ContextCompat.getColor(requireActivity(), R.color.colorLightGray),
+                        PorterDuff.Mode.MULTIPLY
+                    )
+                } else {
+                    if (uid != currentUid) {
                         fragmentView?.account_btn_follow_signout?.text = getString(R.string.follow)
                         fragmentView?.account_btn_follow_signout?.background?.colorFilter = null
                     }
                 }
             }
-            if(followDTO?.followingCount != null){
-                fragmentView?.account_following_textview?.text = followDTO.followingCount.toString()
-            }
+
         }
     }
 
@@ -229,4 +226,3 @@ class UserFragment : Fragment() {
 
     }
 }
-

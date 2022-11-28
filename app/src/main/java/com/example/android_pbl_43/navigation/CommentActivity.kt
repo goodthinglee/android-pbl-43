@@ -17,13 +17,13 @@ import kotlinx.android.synthetic.main.activity_comment.*
 import kotlinx.android.synthetic.main.activity_comment.view.*
 import kotlinx.android.synthetic.main.item_comment.view.*
 
-var contentUid: String? = null
+
 
 class CommentActivity : AppCompatActivity() {
+    var contentUid: String? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_comment)
-
         contentUid = intent.getStringExtra("contentUid")
 
         comment_recyclerview.adapter = CommentRecyclerviewAdapter()
@@ -83,11 +83,7 @@ class CommentActivity : AppCompatActivity() {
                         Glide.with(holder.itemView.context).load(url)
                             .apply(RequestOptions().circleCrop()).into(view.commentviewitem_imageview_profile)
                     }
-
                 }
         }
-
-
-
     }
 }
