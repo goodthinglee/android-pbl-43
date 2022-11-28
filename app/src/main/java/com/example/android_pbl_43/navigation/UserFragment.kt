@@ -1,5 +1,6 @@
 package com.example.android_pbl_43.navigation
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.PorterDuff
@@ -8,23 +9,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.android_pbl_43.LoginActivity
 import com.example.android_pbl_43.MainActivity
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import com.example.android_pbl_43.R
 import com.example.android_pbl_43.navigation.model.ContentDTO
 import com.example.android_pbl_43.navigation.model.FollowDTO
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_user.view.*
+import kotlinx.android.synthetic.main.item_detail.view.*
+
 class UserFragment : Fragment() {
     var fragmentView : View? = null
     lateinit var firestore: FirebaseFirestore
@@ -34,8 +39,23 @@ class UserFragment : Fragment() {
     var currentUid : String? = null
     lateinit var storeage : FirebaseStorage
     var followDTO = FollowDTO()
+
     companion object {
        var PICK_PROFILE_FROM_ALBUM = 10
+    }
+
+    var myPhotoResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
+        result ->
+        var imageUrl = result.data!!.data
+        var storageRef = storeage.reference.child("userProfileImages").child(currentUid!!)
+        storageRef.putFile(imageUrl!!).continueWithTask {
+            return@continueWithTask storageRef.downloadUrl
+        }.addOnCompleteListener {
+            imageUri ->
+            var map = HashMap<String,Any>()
+            map["image"] = imageUri.result.toString()
+            firestore.collection("profileImages").document(currentUid!!).set(map)
+        }
     }
 
     override fun onCreateView(
@@ -66,7 +86,7 @@ class UserFragment : Fragment() {
             fragmentView?.account_iv_profile?.setOnClickListener {
                 var photoPickerIntent = Intent(Intent.ACTION_PICK)
                 photoPickerIntent.type = "image/*"
-                activity?.startActivityForResult(photoPickerIntent, PICK_PROFILE_FROM_ALBUM)
+                myPhotoResultLauncher.launch(photoPickerIntent)
             }
         } else {
             mainactivity.toolbar_title_image?.visibility = View.INVISIBLE
@@ -113,6 +133,7 @@ class UserFragment : Fragment() {
             }
         }
     }
+
     fun requestFollow(){
         var tsDocFollowing = firestore.collection("users").document(currentUid!!)
         firestore.runTransaction { transaction ->
@@ -154,12 +175,14 @@ class UserFragment : Fragment() {
         }
     }
     fun getProfileImage(){
-        firestore.collection("profileImage").document(uid!!).addSnapshotListener { value, error ->
+        firestore.collection("profileImages").document(uid!!).addSnapshotListener { value, error ->
             if (value == null) return@addSnapshotListener
-            if (value.data != null) {
-                var url = value.data!!["image"]
-                Glide.with(requireActivity()).load(url).apply(RequestOptions().circleCrop())
-                    .into(fragmentView?.account_iv_profile!!)
+            if (value?.data != null) {
+                if(activity != null) {
+                    var url = value.data!!["image"]
+                    Glide.with(requireActivity()).load(url).apply(RequestOptions().circleCrop())
+                        .into(fragmentView?.account_iv_profile!!)
+                }
             }
         }
     }
@@ -194,7 +217,7 @@ class UserFragment : Fragment() {
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
             var imageview = (holder as CustomViewHolder).imageview
-            Glide.with(holder.itemView.context).load(contentDTOs[position].imageUrl).apply(RequestOptions()).into(imageview)
+            Glide.with(holder.itemView.context).load(contentDTOs[position].imageUrl).apply(RequestOptions().centerCrop()).into(imageview)
         }
 
 
@@ -204,3 +227,4 @@ class UserFragment : Fragment() {
 
     }
 }
+
