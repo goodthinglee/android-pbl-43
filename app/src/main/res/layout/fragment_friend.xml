@@ -18,8 +18,8 @@
             android:layout_gravity="bottom"
             android:layout_marginLeft="15dp"
             android:layout_marginBottom="5dp"
-            android:fontFamily="cursive"
-            android:text="FRIEND"
+            android:fontFamily="Consolas"
+            android:text="User"
             android:textColor="@color/black"
             android:textSize="24sp"
             android:textStyle="bold" />
