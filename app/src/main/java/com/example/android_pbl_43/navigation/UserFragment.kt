@@ -1,5 +1,6 @@
 package com.example.android_pbl_43.navigation
 
+
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -8,6 +9,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+
 import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.LinearLayoutCompat
@@ -57,12 +59,12 @@ class UserFragment : Fragment() {
             firestore.collection("profileImages").document(currentUid!!).set(map)
         }
     }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         fragmentView = LayoutInflater.from(activity).inflate(R.layout.fragment_user,container,false)
         uid = arguments?.getString("destinationUid")
         firestore = FirebaseFirestore.getInstance()

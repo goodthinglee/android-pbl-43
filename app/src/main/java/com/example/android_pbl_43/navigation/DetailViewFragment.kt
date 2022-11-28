@@ -108,7 +108,6 @@ class DetailViewFragment : Fragment() {
                     }
                 }
 
-
             viewholder.detailview_profile_image.setOnClickListener{
                 var fragment = UserFragment()
                 var bundle = Bundle()
@@ -117,6 +116,7 @@ class DetailViewFragment : Fragment() {
                 fragment.arguments = bundle
                 activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.main_content,fragment)?.commit()
             }
+
 
         }
     }

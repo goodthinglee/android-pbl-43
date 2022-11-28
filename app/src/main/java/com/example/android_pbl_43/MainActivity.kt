@@ -1,19 +1,13 @@
 package com.example.android_pbl_43
 
 import android.Manifest
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-
-import android.view.MenuItem
-import android.view.View
-
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.android_pbl_43.navigation.*
-import com.google.android.gms.tasks.Task
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 import com.google.firebase.auth.FirebaseAuth
@@ -86,7 +80,6 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
 
     }
 
-
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -105,4 +98,5 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         }
     }
 }
+
 
