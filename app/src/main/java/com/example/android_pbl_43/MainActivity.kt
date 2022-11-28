@@ -21,14 +21,10 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
 
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-
+        setToolbarDefault()
         when (item.itemId) {
             R.id.action_home -> {
                 var detailViewFragment = DetailViewFragment()
-                var bundle = Bundle()
-                var uid = FirebaseAuth.getInstance().currentUser?.uid
-                bundle.putString("destinationUid", uid)
-                detailViewFragment.arguments = bundle
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.main_content, detailViewFragment).commit()
                 return true
@@ -76,46 +72,31 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 1)
-
-
-        var bottom_navigation: BottomNavigationView= findViewById(R.id.bottom_navigation)
+        bottom_navigation.setOnNavigationItemSelectedListener(this)
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 1)
         bottom_navigation.selectedItemId = R.id.action_home
-        bottom_navigation.setOnNavigationItemSelectedListener { it ->
-            when(it.itemId) {
-                R.id.action_home -> {
-                    setToolbarDefault()
-                    var detailViewFragment = DetailViewFragment()
-                    supportFragmentManager.beginTransaction().replace(R.id.main_content, detailViewFragment).commit()
-                    true
-                }
-                R.id.action_search -> {
-                    var gridFragment = GridFragment()
-                    supportFragmentManager.beginTransaction().replace(R.id.main_content, gridFragment).commit()
-                    true
-                }
-                R.id.action_add_photo -> {
-                    if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                        startActivity(Intent(this, AddPhotoActivity::class.java))
-                    }
-                    true
-                }
-                R.id.action_favorite_alarm -> {
-                    var alaramFragment = AlarmFragment()
-                    supportFragmentManager.beginTransaction().replace(R.id.main_content, alaramFragment).commit()
-                    true
-                }
-                R.id.action_account -> {
-                    var userFragment = UserFragment()
-                    var bundle = Bundle()
-                    var uid = FirebaseAuth.getInstance().currentUser?.uid
-                    bundle.putString("destinationUid",uid)
-                    userFragment.arguments = bundle
-                    supportFragmentManager.beginTransaction().replace(R.id.main_content, userFragment).commit()
-                    true
-                }
-                else -> false
+
+
+
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if(requestCode == UserFragment.PICK_PROFILE_FROM_ALBUM && resultCode == Activity.RESULT_OK){
+            var imageUri = data?.data
+            var uid = FirebaseAuth.getInstance().currentUser?.uid
+            var storageRef = FirebaseStorage.getInstance().reference.child("userProfileImages").child(uid!!)
+            storageRef.putFile(imageUri!!).continueWithTask{ task: Task<UploadTask.TaskSnapshot> ->
+                return@continueWithTask storageRef.downloadUrl
+            }.addOnCompleteListener{ uri ->
+                var map = HashMap<String,Any>()
+                map["image"] = uri.toString()
+                FirebaseFirestore.getInstance().collection("profileImages").document(uid).set(map)
             }
         }
     }
 }
+
+
